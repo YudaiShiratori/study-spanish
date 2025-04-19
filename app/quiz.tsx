@@ -1,158 +1,181 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
-import { Progress } from '../components/ui/progress';
-import { quizData, Question } from '../constants/quiz';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-native';
+import { useRouter } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+// サンプルのクイズデータ
+const quizData = [
+  {
+    id: 1,
+    question: '「こんにちは」のスペイン語は？',
+    options: ['Adiós', 'Hola', 'Gracias', 'Buenos días'],
+    correctAnswer: 'Hola'
+  },
+  {
+    id: 2,
+    question: '「ありがとう」のスペイン語は？',
+    options: ['Por favor', 'Buenos días', 'Gracias', 'De nada'],
+    correctAnswer: 'Gracias'
+  },
+  {
+    id: 3,
+    question: '「おやすみなさい」のスペイン語は？',
+    options: ['Buenos días', 'Buenas tardes', 'Buenas noches', 'Hasta luego'],
+    correctAnswer: 'Buenas noches'
+  },
+  {
+    id: 4,
+    question: '「さようなら」のスペイン語は？',
+    options: ['Hola', 'Adiós', 'Hasta mañana', 'Buenas tardes'],
+    correctAnswer: 'Adiós'
+  },
+  {
+    id: 5,
+    question: '「お元気ですか？」のスペイン語は？',
+    options: ['¿Cómo estás?', '¿Qué tal?', '¿Dónde estás?', '¿Quién eres?'],
+    correctAnswer: '¿Cómo estás?'
+  }
+];
 
 export default function QuizScreen() {
+  const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [showResult, setShowResult] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('');
   const [score, setScore] = useState(0);
-  const [completed, setCompleted] = useState(false);
-
+  const [showResult, setShowResult] = useState(false);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  
   const currentQuestion = quizData[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === quizData.length - 1;
-
-  const handleAnswer = () => {
-    if (selectedAnswer === null) return;
-
-    const answerIndex = parseInt(selectedAnswer);
-    const isCorrect = answerIndex === currentQuestion.correctIndex;
-
-    if (isCorrect) {
+  
+  const handleOptionPress = (option: string) => {
+    setSelectedOption(option);
+    if (option === currentQuestion.correctAnswer) {
       setScore(score + 1);
     }
-
     setShowResult(true);
   };
-
-  const handleNext = () => {
-    if (isLastQuestion) {
-      setCompleted(true);
-    } else {
+  
+  const handleNextQuestion = () => {
+    setSelectedOption('');
+    setShowResult(false);
+    
+    if (currentQuestionIndex < quizData.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedAnswer(null);
-      setShowResult(false);
+    } else {
+      setQuizCompleted(true);
     }
   };
-
-  const handleRestart = () => {
+  
+  const handleRestartQuiz = () => {
     setCurrentQuestionIndex(0);
-    setSelectedAnswer(null);
-    setShowResult(false);
+    setSelectedOption('');
     setScore(0);
-    setCompleted(false);
+    setShowResult(false);
+    setQuizCompleted(false);
+  };
+  
+  const handleNavToHome = () => {
+    router.push('/home');
   };
 
-  const progress = ((currentQuestionIndex + 1) / quizData.length) * 100;
-
-  if (completed) {
+  const renderQuestionSection = () => {
     return (
-      <SafeAreaView style={styles.container}>
-        <Card style={styles.resultCard}>
-          <CardHeader>
-            <CardTitle>クイズ完了！</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Text style={styles.resultText}>
-              あなたのスコア: {score} / {quizData.length}
+      <>
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View 
+              style={[
+                styles.progressFill, 
+                { width: `${((currentQuestionIndex + 1) / quizData.length) * 100}%` }
+              ]} 
+            />
+          </View>
+          <Text style={styles.progressText}>
+            {currentQuestionIndex + 1} / {quizData.length}
+          </Text>
+        </View>
+        
+        <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>{currentQuestion.question}</Text>
+        </View>
+        
+        <View style={styles.optionsContainer}>
+          {currentQuestion.options.map((option, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.optionButton,
+                selectedOption === option && (
+                  option === currentQuestion.correctAnswer
+                    ? styles.correctOption
+                    : styles.wrongOption
+                )
+              ]}
+              onPress={() => handleOptionPress(option)}
+              disabled={showResult}
+            >
+              <Text style={styles.optionText}>{option}</Text>
+              {showResult && option === currentQuestion.correctAnswer && (
+                <FontAwesome name="check" size={20} color="white" style={styles.optionIcon} />
+              )}
+              {showResult && selectedOption === option && option !== currentQuestion.correctAnswer && (
+                <FontAwesome name="times" size={20} color="white" style={styles.optionIcon} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+        
+        {showResult && (
+          <TouchableOpacity
+            style={styles.nextButton}
+            onPress={handleNextQuestion}
+          >
+            <Text style={styles.nextButtonText}>
+              {currentQuestionIndex === quizData.length - 1 ? '結果を見る' : '次の問題'}
             </Text>
-            <Text style={styles.resultPercentage}>
-              正答率: {Math.round((score / quizData.length) * 100)}%
-            </Text>
-          </CardContent>
-          <CardFooter>
-            <Button onPress={handleRestart}>もう一度挑戦する</Button>
-          </CardFooter>
-        </Card>
-      </SafeAreaView>
+          </TouchableOpacity>
+        )}
+      </>
     );
-  }
+  };
+
+  const renderResultSection = () => {
+    return (
+      <View style={styles.resultContainer}>
+        <Text style={styles.resultTitle}>クイズ結果</Text>
+        <Text style={styles.resultScore}>
+          スコア: {score} / {quizData.length}
+        </Text>
+        <Text style={styles.resultPercentage}>
+          {Math.round((score / quizData.length) * 100)}%
+        </Text>
+        
+        <TouchableOpacity
+          style={styles.restartButton}
+          onPress={handleRestartQuiz}
+        >
+          <Text style={styles.restartButtonText}>もう一度挑戦する</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={styles.homeButton}
+          onPress={handleNavToHome}
+        >
+          <Text style={styles.homeButtonText}>ホームに戻る</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.scoreText}>スコア: {score} / {quizData.length}</Text>
-        <Progress value={progress} style={styles.progressBar} />
-        <Text style={styles.questionCounter}>問題 {currentQuestionIndex + 1} / {quizData.length}</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>スペイン語クイズ</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        {!showResult ? (
-          <Card style={styles.questionCard}>
-            <CardHeader>
-              <CardTitle>スペイン語の文章</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Text style={styles.sentenceText}>{currentQuestion.sentence}</Text>
-              <Text style={styles.instructionText}>正しい日本語訳を選んでください</Text>
-              
-              <RadioGroup
-                value={selectedAnswer || ''}
-                onValueChange={setSelectedAnswer}
-                style={styles.radioGroup}
-              >
-                {currentQuestion.choices.map((choice, index) => (
-                  <RadioGroupItem key={index} value={index.toString()}>
-                    {choice}
-                  </RadioGroupItem>
-                ))}
-              </RadioGroup>
-            </CardContent>
-            <CardFooter>
-              <Button
-                onPress={handleAnswer}
-                disabled={selectedAnswer === null}
-              >
-                解答する
-              </Button>
-            </CardFooter>
-          </Card>
-        ) : (
-          <Card style={styles.resultCard}>
-            <CardHeader>
-              <CardTitle>
-                {currentQuestion.choices[parseInt(selectedAnswer!)]}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <View style={styles.resultStatusContainer}>
-                {parseInt(selectedAnswer!) === currentQuestion.correctIndex ? (
-                  <View style={styles.correctBadge}>
-                    <Text style={styles.badgeText}>正解</Text>
-                  </View>
-                ) : (
-                  <View style={styles.incorrectBadge}>
-                    <Text style={styles.badgeText}>不正解</Text>
-                  </View>
-                )}
-              </View>
-              
-              {parseInt(selectedAnswer!) !== currentQuestion.correctIndex && (
-                <View style={styles.correctAnswerContainer}>
-                  <Text style={styles.correctAnswerLabel}>正解:</Text>
-                  <Text style={styles.correctAnswerText}>
-                    {currentQuestion.choices[currentQuestion.correctIndex]}
-                  </Text>
-                </View>
-              )}
-
-              <View style={styles.explanationContainer}>
-                <Text style={styles.explanationTitle}>解説:</Text>
-                <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
-              </View>
-            </CardContent>
-            <CardFooter>
-              <Button onPress={handleNext}>
-                {isLastQuestion ? '結果を見る' : '次の問題へ'}
-              </Button>
-            </CardFooter>
-          </Card>
-        )}
-      </ScrollView>
+      <View style={styles.contentContainer}>
+        {quizCompleted ? renderResultSection() : renderQuestionSection()}
+      </View>
     </SafeAreaView>
   );
 }
@@ -160,109 +183,156 @@ export default function QuizScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f7f9fc',
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    padding: 16,
+  headerContainer: {
+    backgroundColor: '#3b82f6',
+    padding: 24,
+    alignItems: 'center',
   },
-  scoreText: {
-    fontSize: 16,
+  title: {
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 8,
+    color: 'white',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
   },
   progressBar: {
-    marginBottom: 8,
+    flex: 1,
+    height: 8,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 4,
+    overflow: 'hidden',
   },
-  questionCounter: {
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#3b82f6',
+  },
+  progressText: {
+    marginLeft: 10,
     fontSize: 14,
+    fontWeight: 'bold',
     color: '#64748b',
-    textAlign: 'right',
   },
-  content: {
+  questionContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  questionText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1e293b',
+    textAlign: 'center',
+  },
+  optionsContainer: {
+    marginBottom: 20,
+  },
+  optionButton: {
+    backgroundColor: 'white',
+    borderRadius: 12,
     padding: 16,
-    paddingBottom: 32,
-  },
-  questionCard: {
-    marginBottom: 16,
-  },
-  sentenceText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  instructionText: {
-    fontSize: 16,
-    marginBottom: 16,
-    color: '#64748b',
-  },
-  radioGroup: {
-    marginVertical: 16,
-  },
-  resultCard: {
-    marginBottom: 16,
-  },
-  resultStatusContainer: {
+    marginBottom: 12,
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  correctBadge: {
-    backgroundColor: '#22c55e',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
+  optionText: {
+    fontSize: 16,
+    color: '#1e293b',
   },
-  incorrectBadge: {
+  optionIcon: {
+    marginLeft: 10,
+  },
+  correctOption: {
+    backgroundColor: '#10b981',
+  },
+  wrongOption: {
     backgroundColor: '#ef4444',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
   },
-  badgeText: {
+  nextButton: {
+    backgroundColor: '#3b82f6',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  nextButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
     color: 'white',
+  },
+  resultContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  resultTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
+    color: '#1e293b',
+    marginBottom: 24,
   },
-  correctAnswerContainer: {
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: '#f8fafc',
-    borderRadius: 8,
-  },
-  correctAnswerLabel: {
-    fontSize: 14,
-    color: '#64748b',
-    marginBottom: 4,
-  },
-  correctAnswerText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  explanationContainer: {
-    marginTop: 8,
-    padding: 12,
-    backgroundColor: '#f8fafc',
-    borderRadius: 8,
-  },
-  explanationTitle: {
-    fontSize: 14,
-    color: '#64748b',
-    marginBottom: 4,
-  },
-  explanationText: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  resultText: {
+  resultScore: {
     fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 16,
+    color: '#64748b',
+    marginBottom: 12,
   },
   resultPercentage: {
-    fontSize: 18,
-    textAlign: 'center',
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#3b82f6',
+    marginBottom: 36,
+  },
+  restartButton: {
+    backgroundColor: '#3b82f6',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 12,
+  },
+  restartButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  homeButton: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    width: '100%',
+  },
+  homeButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#64748b',
-    marginBottom: 24,
   },
 }); 
