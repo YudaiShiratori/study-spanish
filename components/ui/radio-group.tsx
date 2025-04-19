@@ -1,6 +1,17 @@
 import React, { createContext, useContext } from 'react';
 import { View, Text, Pressable, ViewProps, StyleSheet } from 'react-native';
 
+// 黄色のカラーテーマ定義
+const COLORS = {
+  primary: '#F0B428',
+  secondary: '#FFD966',
+  tertiary: '#FFF7C2',
+  accent: '#FFF1CC',
+  border: '#E2E8F0',
+  text: '#0F172A',
+  textSecondary: '#94A3B8',
+};
+
 // スタイリングはStyleSheetを使用
 const styles = StyleSheet.create({
   radioGroup: {
@@ -13,35 +24,35 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: COLORS.border,
     borderRadius: 4,
     marginBottom: 8, // gapの代わりに
   },
   radioItemSelected: {
-    borderColor: '#3b82f6',
-    backgroundColor: '#eff6ff',
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.accent,
   },
   radioCircle: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#94a3b8',
+    borderColor: COLORS.textSecondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   radioCircleSelected: {
-    borderColor: '#3b82f6',
+    borderColor: COLORS.primary,
   },
   radioCircleInner: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#3b82f6',
+    backgroundColor: COLORS.primary,
   },
   radioLabel: {
     fontSize: 14,
-    color: '#0f172a',
+    color: COLORS.text,
     flex: 1,
     marginLeft: 8, // gapの代わりに
   },

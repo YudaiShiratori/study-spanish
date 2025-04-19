@@ -1,6 +1,25 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import { StyleSheet, Text, View, Pressable, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+// 黄色のカラーテーマ
+const COLORS = {
+  primary: '#F0B428',
+  secondary: '#FFD966',
+  tertiary: '#FFF3CC',
+  accent: '#FFF1CC',
+  background: {
+    main: '#FFFBEB',
+    card: '#FFFFFF'
+  },
+  text: {
+    dark: '#363636',
+    medium: '#5F5F5F',
+    light: '#8A8A8A',
+    white: '#FFFFFF'
+  }
+};
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -12,25 +31,23 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>スペイン語学習</Text>
-        <Text style={styles.subtitle}>DELE B2-C1レベル</Text>
+        <Text style={styles.title}>スタスペ</Text>
+        <Text style={styles.subtitle}>¡Hola! 今日も学習を続けましょう</Text>
       </View>
 
-      <View style={styles.contentContainer}>
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.descriptionTitle}>今日のスペイン語学習</Text>
-          <Text style={styles.descriptionText}>
-            スペイン語クイズで毎日の学習習慣を作りましょう。
-            基本的な単語から会話表現まで効率的に学習できます。
-          </Text>
+      <View style={styles.content}>
+        <View style={styles.logoContainer}>
+          <FontAwesome name="flag" size={120} color={COLORS.primary} />
         </View>
 
-        <TouchableOpacity 
-          style={styles.startButton}
-          onPress={handleStartQuiz}
-        >
-          <Text style={styles.startButtonText}>学習を始める</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <Pressable
+            style={styles.startButton}
+            onPress={handleStartQuiz}
+          >
+            <Text style={styles.startButtonText}>学習を始める</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -39,61 +56,56 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: COLORS.background.main,
   },
   headerContainer: {
-    backgroundColor: '#3b82f6',
-    padding: 24,
+    backgroundColor: COLORS.primary,
+    padding: 20,
     alignItems: 'center',
+    shadowColor: 'rgba(0, 0, 0, 0.2)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 5,
+    color: COLORS.text.white,
   },
   subtitle: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: COLORS.text.white,
+    opacity: 0.9,
+    marginTop: 8,
   },
-  contentContainer: {
+  content: {
     flex: 1,
+    justifyContent: 'center',
     padding: 20,
-    justifyContent: 'space-between',
   },
-  descriptionContainer: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 60,
   },
-  descriptionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  descriptionText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#4b5563',
-    textAlign: 'center',
+  buttonContainer: {
+    alignItems: 'center',
   },
   startButton: {
-    backgroundColor: '#3b82f6',
-    padding: 20,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     borderRadius: 12,
+    width: '80%',
     alignItems: 'center',
-    marginBottom: 20,
+    shadowColor: 'rgba(0, 0, 0, 0.2)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    marginBottom: 16,
   },
   startButtonText: {
-    color: 'white',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-  },
+    color: COLORS.text.white,
+  }
 });

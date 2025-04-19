@@ -1,17 +1,24 @@
 import React from 'react';
 import { View, ViewProps, StyleSheet } from 'react-native';
 
+// 黄色のカラーテーマ定義
+const COLORS = {
+  primary: '#F0B428',
+  secondary: '#FFD966',
+  background: '#FFFBEB',
+};
+
 const styles = StyleSheet.create({
   progressContainer: {
     height: 8,
     width: '100%',
-    backgroundColor: '#e2e8f0',
+    backgroundColor: 'rgba(240, 180, 40, 0.2)',
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#3b82f6',
+    backgroundColor: COLORS.primary,
   },
 });
 

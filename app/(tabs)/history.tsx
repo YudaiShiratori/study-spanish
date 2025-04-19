@@ -1,5 +1,27 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+// 黄色のカラーテーマを定義
+const COLORS = {
+  primary: '#F0B428',
+  secondary: '#FFD966',
+  tertiary: '#FFF7C2',
+  accent: '#FFF1CC',
+  background: {
+    main: '#FFFBEB',
+    card: '#FFFFFF'
+  },
+  text: {
+    dark: '#363636',
+    medium: '#5F5F5F',
+    light: '#8A8A8A',
+    white: '#FFFFFF'
+  },
+  border: '#E2E8F0',
+  shadow: 'rgba(0, 0, 0, 0.15)'
+};
 
 // モックデータ - 実際のアプリでは非同期ストレージから取得するようにする
 const mockStudyDates = [
@@ -28,6 +50,7 @@ const MONTH_NAMES = [
 ];
 
 export default function StudyHistoryScreen() {
+  const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const studyDates = mockStudyDates.map(date => new Date(date));
 
@@ -177,12 +200,20 @@ export default function StudyHistoryScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>学習記録</Text>
-      </View>
-
-      <View style={styles.streakContainer}>
-        <Text style={styles.streakValue}>{streakDays}</Text>
-        <Text style={styles.streakLabel}>日連続学習中</Text>
+        <View style={styles.headerTop}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => router.push('/home')}
+          >
+            <FontAwesome name="arrow-left" size={20} color={COLORS.text.white} />
+          </TouchableOpacity>
+          <Text style={styles.title}>学習記録</Text>
+          <View style={{width: 20}} />
+        </View>
+        <View style={styles.streakBadge}>
+          <Text style={styles.streakValue}>{streakDays}</Text>
+          <Text style={styles.streakLabel}>日連続学習中</Text>
+        </View>
       </View>
 
       <View style={styles.calendarHeader}>
@@ -214,126 +245,146 @@ export default function StudyHistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: COLORS.background.main,
   },
   headerContainer: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: COLORS.primary,
     padding: 20,
     alignItems: 'center',
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  backButton: {
+    width: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: 'white',
+    color: COLORS.text.white,
   },
-  streakContainer: {
+  streakBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: 'white',
-    marginTop: 1,
-    shadowColor: '#000',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  streakValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: COLORS.text.white,
+    marginRight: 4,
+  },
+  streakLabel: {
+    fontSize: 14,
+    color: COLORS.text.white,
+    opacity: 0.9,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: COLORS.background.card,
+    shadowColor: COLORS.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
   },
-  streakValue: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#3b82f6',
-    marginRight: 8,
-  },
-  streakLabel: {
-    fontSize: 16,
-    color: '#4b5563',
-  },
-  calendarHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: 'white',
-    marginTop: 16,
-  },
   calendarTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: COLORS.text.dark,
   },
   calendarNavButton: {
-    fontSize: 20,
-    color: '#3b82f6',
+    fontSize: 24,
+    color: COLORS.primary,
     padding: 8,
   },
   calendarContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: COLORS.background.card,
+    padding: 8,
   },
   weekDayHeader: {
     flexDirection: 'row',
-    padding: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    marginBottom: 8,
+    marginTop: 8,
   },
   weekDayText: {
     flex: 1,
     textAlign: 'center',
     fontSize: 14,
-    fontWeight: '500',
-    color: '#4b5563',
+    fontWeight: '600',
+    color: COLORS.text.medium,
   },
   sundayText: {
-    color: '#ef4444',
+    color: '#E95F5C',
   },
   saturdayText: {
-    color: '#3b82f6',
+    color: '#6BBF59',
   },
   calendarWeek: {
     flexDirection: 'row',
-    height: 50,
+    marginBottom: 8,
   },
   calendarDay: {
     flex: 1,
+    aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderRadius: 20,
   },
   calendarDayText: {
-    fontSize: 14,
+    fontSize: 16,
+    color: COLORS.text.dark,
   },
   emptyDay: {
     flex: 1,
   },
   studiedDay: {
-    backgroundColor: '#dbeafe',
-    borderRadius: 25,
-    margin: 4,
+    backgroundColor: COLORS.tertiary,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
   },
   studiedDayText: {
-    color: '#3b82f6',
-    fontWeight: 'bold',
+    color: COLORS.text.dark,
+    fontWeight: '600',
   },
   legendContainer: {
     flexDirection: 'row',
-    padding: 16,
-    backgroundColor: 'white',
+    justifyContent: 'center',
+    padding: 12,
+    backgroundColor: COLORS.background.card,
     borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
+    borderTopColor: COLORS.accent,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 8,
   },
   legendStudiedDay: {
     width: 16,
     height: 16,
-    backgroundColor: '#dbeafe',
     borderRadius: 8,
+    backgroundColor: COLORS.tertiary,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
     marginRight: 8,
   },
   legendText: {
     fontSize: 14,
-    color: '#4b5563',
+    color: COLORS.text.medium,
   },
 }); 
