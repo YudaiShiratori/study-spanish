@@ -203,7 +203,7 @@ export default function StudyHistoryScreen() {
         <View style={styles.headerTop}>
           <TouchableOpacity 
             style={styles.backButton} 
-            onPress={() => router.push('/home')}
+            onPress={() => router.push('/')}
           >
             <FontAwesome name="arrow-left" size={20} color={COLORS.text.white} />
           </TouchableOpacity>
